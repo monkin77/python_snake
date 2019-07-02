@@ -5,8 +5,8 @@ import tkinter
 from tkinter import messagebox
 
 class cube(object):
-    rows = 0
-    w = 0
+    rows = 20
+    w = 500
     def __init__(self, start, dirnx = 1, dirny = 0, color = (255,0,0)):
         self.pos = start
         self.dirnx = 1
@@ -15,12 +15,23 @@ class cube(object):
 
     def move(self, dirnx, dirny):
         self.dirnx = dirnx
-        self.dirny = dirn1
-        self.pos(self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
+        self.dirny = dirny
+        self.pos  = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
 
                      
     def draw(self, surface, eyes = False):
-        pass
+        dis = self.w // self.rows
+        i = self.pos[0] #row
+        j = self.pos[1] #Column
+
+        pygame.draw.rect(surface, self.color, (i*dis+1, j*dis+1, dis-2,dis-2))
+        if eyes: # Draws the eyes
+            centre = dis//2
+            radius = 3
+            circleMiddle = (i*dis+centre-radius,j*dis+8)
+            circleMiddle2 = (i*dis + dis -radius*2, j*dis+8)
+            pygame.draw.circle(surface, (0,0,0), circleMiddle, radius)
+            pygame.draw.circle(surface, (0,0,0), circleMiddle2, radius)  
 
 class snake(object):
     body = []
@@ -46,7 +57,7 @@ class snake(object):
                     self.dirnx = -1
                     self.dirny = 0
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
-                elif keys[pygame.k_RIGHT]:
+                elif keys[pygame.K_RIGHT]:
                     self.dirnx = 1
                     self.dirny = 0
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
@@ -68,8 +79,8 @@ class snake(object):
             else:
                 if c.dirnx == -1 and c.pos[0] <= 0 : c.pos = (c.rows - 1, c.pos[1])
                 elif c.dirnx == 1 and c.pos[0] >= c.rows - 1: c.pos = (0, c.pos[1])
-                elif c.dirny == -1 and c.pos[y] <= 0: c.pos = (c.pos[0], c.rows - 1)
-                elif c.dirny == 1 and c.pos[y] > c.rows -1: c.pos = (c.pos[0], 0)
+                elif c.dirny == -1 and c.pos[1] <= 0: c.pos = (c.pos[0], c.rows - 1)
+                elif c.dirny == 1 and c.pos[1] > c.rows -1: c.pos = (c.pos[0], 0)
                 else: c.move(c.dirnx, c.dirny)
                   
              
@@ -105,12 +116,21 @@ def redrawWindow(surface):
     global rows, width, s
     surface.fill((0,0,0))
     drawGrid(width, rows, surface)
-    pygame.display.update()
     s.draw(surface)
+    pygame.display.update()
 
 def randomSnack(rows, item):
-    passs
+   
+    positions = item.body
 
+    while True:
+        x = random.randrange(rows)
+        y = random.randrange(rows)
+        if len(list(filter(lambda z:z.pos == (x,y), positions))) > 0:
+            continue
+        else: 
+            break
+    return(x,y)
 
 def message_box(subject, content):
     pass
@@ -121,18 +141,21 @@ def main():
     width = 500
     rows = 20
     s = snake((255,0,0), (10,10))
+    snack = cube(randomSnack(rows, s)), color = (0,255,0)
     surface = pygame.display.set_mode((width, width))
     flag = True
+
 
     clock = pygame.time.Clock()
     
     while flag:
         pygame.time.delay(50)
         clock.tick(10)
+        s.move()
+
 
         redrawWindow(surface)
-
-    pass
+        
 
 
 main()
